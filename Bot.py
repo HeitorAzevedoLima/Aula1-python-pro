@@ -1,28 +1,23 @@
 import discord
-from senha import senha
+from discord.ext import commands
+import random
 
-# A variável intents armazena as permissões do bot
 intents = discord.Intents.default()
-# Ativar a permissão para ler o conteúdo das mensagens
+intents.members = True
 intents.message_content = True
-# Criar um bot e passar as permissões
-client = discord.Client(intents=intents)
 
-@client.event
-async def on_ready():
-    print(f'Fizemos login como {client.user}')
+bot = commands.Bot(command_prefix='/', description='A simple bot', intents=intents)
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
+@bot.command()
+async def roll(ctx, dice: str):
+    """Rolls a dice in NdN format."""
+    try:
+        rolls, limit = map(int, dice.split('d'))
+    except Exception:
+        await ctx.send('Format has to be in NdN!')
         return
-    if message.content.startswith('$hello'):
-        await message.channel.send("Hello!")
-    elif message.content.startswith('$bye'):
-        await message.channel.send("\U0001f642")
-    elif message.content.startswith('!senha'):
-        await message.channel.send(senha())
-    else:
-        await message.channel.send(message.content)
 
-client.run("???")
+    result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
+    await ctx.send(result)
+
+bot.run('???')
